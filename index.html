@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- font osm -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    <title>Employee Management</title>
+</head>
+
+<body>
+    <div class="card">
+        <header>
+            <div class="icon">
+                <i class="fa-solid fa-user"></i>
+            </div>
+            <h1>Employee Management System</h1>
+            <div class="icon">
+                <i class="fa-solid fa-list-check"></i>
+            </div>
+        </header>
+        <section class="container">
+            <aside class="details">
+                <table class="employee-table" id="employeeTable">
+                    <thead>
+                        <tr>
+                            <th>EMP No</th>
+                            <th>EName</th>
+                            <th>Salary</th>
+                            <th>Date of Join</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Employee data will be dynamically added here -->
+                    </tbody>
+                </table>
+            </aside>
+            <div class="form">
+                <form id="employeeForm">
+                    <label for="eno">Eno: </label>
+                    <input type="text" id="eno" name="eno" placeholder="Enter Employee ID" required>
+
+                    <label for="ename">EName: </label>
+                    <input type="text" id="ename" name="ename" placeholder="Enter Employee Name" required>
+
+                    <label for="salary">Salary</label>
+                    <input type="number" id="salary" name="salary" placeholder="Enter Employee Salary" required>
+
+                    <label for="join">Date of Join</label>
+                    <input type="date" id="join" name="join" required>
+
+                    <input class="button" type="submit" value="Create">
+                </form>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        let editIndex = -1; // To track which employee is being edited
+
+        // Function to load employees from local storage
+        function loadEmployees() {
+            const employees = JSON.parse(localStorage.getItem('employees')) || [];
+            const tableBody = document.querySelector('#employeeTable tbody');
+            tableBody.innerHTML = ''; // Clear existing rows
+
+            employees.forEach((employee, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${employee.eno}</td>
+                    <td>${employee.ename}</td>
+                    <td>$${employee.salary}</td>
+                    <td>${employee.dateOfJoin}</td>
+                    <td>
+                        <button class="button" onclick="editEmployee(${index})">Update</button>
+                        <button class="button" onclick="deleteEmployee(${index})">Delete</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Function to handle form submission
+        document.getElementById('employeeForm').addEventListener('submit', function (e) {
+            e.preventDefault(); // Prevent page reload
+            const eno = document.getElementById('eno').value;
+            const ename = document.getElementById('ename').value;
+            const salary = document.getElementById('salary').value;
+            const dateOfJoin = document.getElementById('join').value;
+
+            const employees = JSON.parse(localStorage.getItem('employees')) || [];
+
+            if (editIndex === -1) { // Create new employee
+                employees.push({ eno, ename, salary, dateOfJoin });
+            } else { // Update existing employee
+                employees[editIndex] = { eno, ename, salary, dateOfJoin };
+                editIndex = -1; // Reset edit index after updating
+            }
+
+            localStorage.setItem('employees', JSON.stringify(employees));
+            loadEmployees(); // Reload employees
+            this.reset(); // Reset form
+        });
+
+        // Function to edit an employee
+        function editEmployee(index) {
+            const employees = JSON.parse(localStorage.getItem('employees'));
+            const employee = employees[index];
+            document.getElementById('eno').value = employee.eno;
+            document.getElementById('ename').value = employee.ename;
+            document.getElementById('salary').value = employee.salary;
+            document.getElementById('join').value = employee.dateOfJoin;
+
+            // Set the edit index to the selected employee
+            editIndex = index;
+        }
+
+        // Function to delete an employee
+        function deleteEmployee(index) {
+            const employees = JSON.parse(localStorage.getItem('employees'));
+            employees.splice(index, 1);
+            localStorage.setItem('employees', JSON.stringify(employees));
+            loadEmployees();
+        }
+
+        // Initial load
+        loadEmployees();
+    </script>
+</body>
+
+</html>
